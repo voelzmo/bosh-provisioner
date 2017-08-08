@@ -4,6 +4,7 @@ import (
 	gourl "net/url"
 
 	boshblob "github.com/cloudfoundry/bosh-utils/blobstore"
+  boshcrypto "github.com/cloudfoundry/bosh-utils/crypto"
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	boshlog "github.com/cloudfoundry/bosh-utils/logger"
 )
@@ -11,12 +12,12 @@ import (
 const blobstoreDownloaderLogTag = "BlobstoreDownloader"
 
 type BlobstoreDownloader struct {
-	blobstore boshblob.Blobstore
+	blobstore boshblob.DigestBlobstore
 	logger    boshlog.Logger
 }
 
 func NewBlobstoreDownloader(
-	blobstore boshblob.Blobstore,
+	blobstore boshblob.DigestBlobstore,
 	logger boshlog.Logger,
 ) BlobstoreDownloader {
 	return BlobstoreDownloader{
@@ -40,7 +41,9 @@ func (d BlobstoreDownloader) Download(url string) (string, error) {
 		}
 	}
 
-	path, err := d.blobstore.Get(parsedURL.Path, fingerprint)
+  digest := boshcrypto.NewDigest(boshcrypto.DigestAlgorithmSHA1, fingerprint)
+
+	path, err := d.blobstore.Get(parsedURL.Path, digest)
 	if err != nil {
 		return "", bosherr.WrapError(err, "Downloading blob")
 	}

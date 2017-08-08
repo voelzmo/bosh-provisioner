@@ -9,7 +9,7 @@ import (
 func NewDefaultMuxDownloader(
 	fs boshsys.FileSystem,
 	runner boshsys.CmdRunner,
-	blobstore boshblob.Blobstore,
+	blobstore boshblob.DigestBlobstore,
 	logger boshlog.Logger,
 ) MuxDownloader {
 	mux := map[string]Downloader{
